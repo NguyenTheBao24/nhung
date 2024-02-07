@@ -52,7 +52,6 @@ class _HistoryWidgetState extends State<HistoryWidget> {
                     ),
                   ),
 
-                  // Thêm các mục khác nếu cần
                 ],
               ),
             ],
@@ -75,42 +74,11 @@ class _HistoryWidgetState extends State<HistoryWidget> {
                   return ListView.builder(
                     itemCount: data.length,
                     itemBuilder: (context, index) {
-                      String date = data[index]['day'];
-                      List<Map<String, dynamic>> dayData = data[index]['users'];
+                      Map<String, dynamic> item = data[index];
 
-                      return Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          ListTile(
-                            contentPadding: EdgeInsets.only(bottom: 0, left: 5),
-                            title: Text(
-                              'Ngày: $date',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                          ...dayData.map((item) {
-                            return ListTile(
-                              contentPadding: EdgeInsets.only(left: 16, top: 0),
-                              title: Row(
-                                children: [
-                                  CircleAvatar(
-                                    child: Icon(
-                                      Icons.circle,
-                                      size: 5,
-                                    ),
-                                    radius: 5,
-                                  ),
-                                  SizedBox(width: 5),
-                                  Text(item['username']),
-                                ],
-                              ),
-                              subtitle: Text(item['time']),
-                            );
-                          }).toList(),
-                        ],
+                      return ListTile(
+                        title: Text(item['user']['username']),
+                        subtitle: Text(item['time']),
                       );
                     },
                   );

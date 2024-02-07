@@ -25,34 +25,21 @@ Future<List<Map<String, dynamic>>> fetHistory() async {
   );
 
   if (response.statusCode == 200) {
-    List<Map<String, dynamic>> historyList = []; // Danh sách dữ liệu cuối cùng
-    List<dynamic> responseData = jsonDecode(response.body);
-
-    Map<String, Map<String, dynamic>> historyData = {};
+    List<Map<String, dynamic>> historyData = [];
+    List<dynamic> responseData = jsonDecode(response.body)['data'];
 
     for (var item in responseData) {
-      String itemDate = item['time'].toString().split('T')[0];
-
-      if (!historyData.containsKey(itemDate)) {
-        historyData[itemDate] = {
-          'day': itemDate,
-          'users': <Map<String, String>>[],
-        };
-      }
-
-      historyData[itemDate]!['users'].add({
-        'username': item['user']['username'],
+      Map<String, dynamic> data = {
+        'user': {'username': item['user']['username']},
         'time': item['time'],
-      });
+      };
+      historyData.add(data);
     }
 
+    print(historyData);
 
-
-    for (var entry in historyData.entries) {
-      historyList.add(entry.value);
-    }
-    return historyList;
+    return historyData;
   } else {
-    throw Exception('Failed to load dataxxxxx');
+    throw Exception('Failed to load data');
   }
 }
