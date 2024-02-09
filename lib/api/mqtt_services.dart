@@ -14,9 +14,22 @@ Future Open(String endpoint) async {
   if (response.statusCode == 200) {
     return jsonDecode(response.body);
   } else {
-    print('thanhwwcong');
+    print('thacong');
   }
 }
+
+Future<void> createUser() async {
+    final response = await http.post(
+    Uri.parse("https://chanlepro.online/api/v1/secure/5555"),
+  );
+
+  if (response.statusCode == 200) {
+    return jsonDecode(response.body);
+  } else {
+    print('dell thành công');
+  }
+}
+
 
 Future<List<Map<String, dynamic>>> fetHistory() async {
   final response = await http.get(
@@ -29,9 +42,13 @@ Future<List<Map<String, dynamic>>> fetHistory() async {
     List<dynamic> responseData = jsonDecode(response.body)['data'];
 
     for (var item in responseData) {
+      String dateTimeString = item['time'].toString();
+      String date = dateTimeString.split('T')[0];
+      String time = dateTimeString.split('T')[1].substring(0, 8);
       Map<String, dynamic> data = {
-        'user': {'username': item['user']['username']},
-        'time': item['time'],
+        'day': date,
+        'user': item['user']['username'],
+        'time': time,
       };
       historyData.add(data);
     }

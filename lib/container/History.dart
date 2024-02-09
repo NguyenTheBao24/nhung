@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:nhung/api/mqtt_services.dart';
+import 'package:nhung/widget/widget_history.dart';
 
 class HistoryWidget extends StatefulWidget {
   @override
@@ -10,6 +11,7 @@ class HistoryWidget extends StatefulWidget {
 
 class _HistoryWidgetState extends State<HistoryWidget> {
   String? selectedDate;
+  String? selectedDay; 
 
   @override
   Widget build(BuildContext context) {
@@ -24,8 +26,7 @@ class _HistoryWidgetState extends State<HistoryWidget> {
             actions: [
               PopupMenuButton(
                 shape: RoundedRectangleBorder(
-                  borderRadius:
-                      BorderRadius.circular(8.0), // Đặt giá trị theo ý muốn
+                  borderRadius: BorderRadius.circular(8.0),
                 ),
                 itemBuilder: (context) => [
                   PopupMenuItem(
@@ -42,8 +43,7 @@ class _HistoryWidgetState extends State<HistoryWidget> {
 
                           if (pickedDate != null) {
                             setState(() {
-                              selectedDate =
-                                  pickedDate.toString().split(' ')[0];
+                              selectedDay = pickedDate.toString().split(' ')[0];
                             });
                           }
                         },
@@ -51,7 +51,6 @@ class _HistoryWidgetState extends State<HistoryWidget> {
                       ),
                     ),
                   ),
-
                 ],
               ),
             ],
@@ -70,18 +69,36 @@ class _HistoryWidgetState extends State<HistoryWidget> {
                   );
                 } else {
                   List<Map<String, dynamic>> data = snapshot.data!;
+                  Map<String, List<Map<String, dynamic>>> groupedData = {};
 
-                  return ListView.builder(
-                    itemCount: data.length,
-                    itemBuilder: (context, index) {
-                      Map<String, dynamic> item = data[index];
+                  data.forEach((item) {
+                    String day = item['day'];
+                    if (!groupedData.containsKey(day)) {
+                      groupedData[day] = [];
+                    }
+                    groupedData[day]!.add(item);
+                  });
 
-                      return ListTile(
-                        title: Text(item['user']['username']),
-                        subtitle: Text(item['time']),
+                  if (selectedDay == null) {
+                    return ListView.builder(
+                      itemCount: groupedData.length,
+                      itemBuilder: (context, index) {
+                        String day = groupedData.keys.toList()[index];
+                        List<Map<String, dynamic>> dayData = groupedData[day]!;
+                        return DayListWidget(day: day, dayData: dayData);
+                      },
+                    );
+                  } else {
+                    if (groupedData.containsKey(selectedDay!)) {
+                      List<Map<String, dynamic>> dayData =
+                          groupedData[selectedDay!]!;
+                      return DayListWidget(day: selectedDay!, dayData: dayData);
+                    } else {
+                      return Center(
+                        child: Text('Không có dữ liệu cho ngày này.'),
                       );
-                    },
-                  );
+                    }
+                  }
                 }
               },
             ),
