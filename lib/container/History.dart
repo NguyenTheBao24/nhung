@@ -11,7 +11,7 @@ class HistoryWidget extends StatefulWidget {
 
 class _HistoryWidgetState extends State<HistoryWidget> {
   String? selectedDate;
-  String? selectedDay; 
+  String? selectedDay;
 
   @override
   Widget build(BuildContext context) {
@@ -42,6 +42,7 @@ class _HistoryWidgetState extends State<HistoryWidget> {
                           );
 
                           if (pickedDate != null) {
+                            fetchUsersWithTemporaryTrue();
                             setState(() {
                               selectedDay = pickedDate.toString().split(' ')[0];
                             });

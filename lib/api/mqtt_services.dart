@@ -18,19 +18,6 @@ Future Open(String endpoint) async {
   }
 }
 
-Future<void> createUser() async {
-    final response = await http.post(
-    Uri.parse("https://chanlepro.online/api/v1/secure/5555"),
-  );
-
-  if (response.statusCode == 200) {
-    return jsonDecode(response.body);
-  } else {
-    print('dell thành công');
-  }
-}
-
-
 Future<List<Map<String, dynamic>>> fetHistory() async {
   final response = await http.get(
     Uri.parse("https://chanlepro.online/api/v1/history"),
@@ -53,9 +40,26 @@ Future<List<Map<String, dynamic>>> fetHistory() async {
       historyData.add(data);
     }
 
-    print(historyData);
-
     return historyData;
+  } else {
+    throw Exception('Failed to load data');
+  }
+}
+
+Future<List<Map<String, dynamic>>> fetchUsersWithTemporaryTrue() async {
+  final response = await http.get(
+    Uri.parse("https://chanlepro.online/api/v1/secure/getAllUser"),
+    headers: {"Accept": "application/json; charset=utf-8"},
+  );
+
+  if (response.statusCode == 200) {
+    List<dynamic> userList = jsonDecode(response.body)["data"];
+    List<Map<String, dynamic>> filteredUsers = userList
+        .cast<Map<String, dynamic>>()
+        .where((user) => user['fingerPosition'] == false)
+        .toList();
+
+    return filteredUsers;
   } else {
     throw Exception('Failed to load data');
   }

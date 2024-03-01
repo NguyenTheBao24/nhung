@@ -13,11 +13,11 @@ class PrettyWaveButton extends StatefulWidget {
     required this.onPressed,
     this.borderRadius = s100,
     this.backgroundColor = kBlack,
-    this.verticalPadding = s50,
+    this.verticalPadding = s60,
     this.horizontalPadding = s50,
     this.duration = duration1000,
     this.curve = Curves.easeInOut,
-    this.waveLength = s6,
+    this.waveLength = s8,
   });
   final VoidCallback onPressed;
   final double borderRadius;
