@@ -8,7 +8,8 @@ class UserWidget extends StatefulWidget {
 }
 
 class _LockWidgetState extends State<UserWidget> {
-  bool _showTemporaryUsers = false; // Biến để theo dõi lựa chọn của người dùng
+  bool _showTemporaryUsers = false;
+  List<bool> _showPasscodeList = []; // Biến để theo dõi lựa chọn của người dùng
 
   @override
   Widget build(BuildContext context) {
@@ -75,9 +76,7 @@ class _LockWidgetState extends State<UserWidget> {
                         child: ElevatedButton(
                           onPressed: () async {
                             _showAddUserDialog(context);
-                            
                           },
-                          
                           child: Text('Add User'),
                         ),
                       ),
@@ -114,27 +113,93 @@ class _LockWidgetState extends State<UserWidget> {
                   return ListView.builder(
                     itemCount: filteredUsers.length,
                     itemBuilder: (context, index) {
-                      return Card(
-                        margin:
-                            EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                        child: ListTile(
-                          leading: Icon(Icons.person),
-                          title: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                filteredUsers[index]['username'] ??
-                                    'Unknown User',
-                                style: TextStyle(fontWeight: FontWeight.bold),
+                      if (_showPasscodeList.length != filteredUsers.length) {
+                        _showPasscodeList.add(false);
+                      }
+
+                      return Dismissible(
+                        key: UniqueKey(),
+                        background: Container(
+                          color: Colors.red,
+                          child: Align(
+                            alignment: Alignment.centerLeft,
+                            child: Padding(
+                              padding: EdgeInsets.only(left: 20),
+                              child: Icon(
+                                Icons.delete,
+                                color: Colors.white,
                               ),
-                              SizedBox(
-                                  height:
-                                      4), // Khoảng cách giữa tên người dùng và passcode
-                              Text(
-                                'Passcode: ${"*****" ?? "****"}',
-                                style: TextStyle(fontWeight: FontWeight.bold),
-                              ),
-                            ],
+                            ),
+                          ),
+                        ),
+                        confirmDismiss: (direction) async {
+                          return await showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return AlertDialog(
+                                title: Text("Xác nhận"),
+                                content: Text("Bạn có chắc chắn muốn xoá?"),
+                                actions: <Widget>[
+                                  TextButton(
+                                    onPressed: () =>
+                                        Navigator.of(context).pop(false),
+                                    child: Text("Hủy"),
+                                  ),
+                                  TextButton(
+                                    onPressed: () =>
+                                        Navigator.of(context).pop(true),
+                                    child: Text(
+                                      "Xác nhận",
+                                      style: TextStyle(color: Colors.red),
+                                    ),
+                                  ),
+                                ],
+                              );
+                            },
+                          );
+                        },
+                        onDismissed: (direction) {
+                          deleteUser(filteredUsers[index]['userId'].toString());
+                          // setState(() {
+                          //   // Xóa người dùng khỏi danh sách và cập nhật giao diện
+                          //   filteredUsers.removeAt(index);
+                          // });
+                        },
+                        child: Card(
+                          margin:
+                              EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                          child: ListTile(
+                            leading: Icon(Icons.person),
+                            title: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  filteredUsers[index]['username'] ??
+                                      'Unknown User',
+                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                ),
+                                SizedBox(height: 4),
+                                Text(
+                                  _showPasscodeList[index]
+                                      ? 'Passcode: ${filteredUsers[index]['passcode']}'
+                                      : 'Passcode:*****',
+                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                ),
+                                if (_showTemporaryUsers == false)
+                                  Text(
+                                      filteredUsers[index]['fingerPosition'] ==
+                                              null
+                                          ? 'fingerPosition : False'
+                                          : 'fingerPosition : True',
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold)),
+                                if (_showTemporaryUsers == true)
+                                  Text(
+                                      'accessCount: ${filteredUsers[index]['accessCount'].toString()}',
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold)),
+                              ],
+                            ),
                           ),
                         ),
                       );

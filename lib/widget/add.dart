@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:nhung/api/mqtt_services.dart';
 
 class AddUserDialog extends StatefulWidget {
   @override
@@ -7,12 +8,19 @@ class AddUserDialog extends StatefulWidget {
 
 class _AddUserDialogState extends State<AddUserDialog> {
   String? userType = 'Regular';
+  late TextEditingController passcodeController;
+
+  @override
+  void initState() {
+    super.initState();
+    passcodeController = TextEditingController();
+  }
 
   @override
   Widget build(BuildContext context) {
     String username = '';
     String passcode = '';
-    String passcodeTemporary = '';
+    String accessCount = '';
 
     return AlertDialog(
       title: Text('Add User'),
@@ -48,16 +56,29 @@ class _AddUserDialogState extends State<AddUserDialog> {
           if (userType == 'Regular')
             TextFormField(
               decoration: InputDecoration(labelText: 'Passcode'),
-              onChanged: (value) {
-                passcode = value;
-              },
+              controller: passcodeController,
+
+              obscuringCharacter: '*', // Use '*' as the obscuring character
+              obscureText: true, // Obscure the text
+              keyboardType: TextInputType.number, // Set the keyboard type
             ),
           if (userType == 'Temporary')
             TextFormField(
-              decoration: InputDecoration(labelText: 'Number of uses'),
+              decoration: InputDecoration(labelText: 'Passcode'),
+              controller: passcodeController,
+
+              obscuringCharacter: '*', // Use '*' as the obscuring character
+              obscureText: true, // Obscure the text
+              keyboardType: TextInputType.number, // Set the keyboard type
+            ),
+          if (userType == 'Temporary')
+            TextFormField(
+              decoration: InputDecoration(labelText: 'AccessCount'),
               onChanged: (value) {
-                passcodeTemporary = value;
+                // Loại bỏ bất kỳ ký tự nào không phải là số
+                accessCount = value.replaceAll(RegExp(r'[^0-9]'), '');
               },
+              keyboardType: TextInputType.number, // Đặt loại bàn phím cho số
             ),
         ],
       ),
@@ -70,12 +91,30 @@ class _AddUserDialogState extends State<AddUserDialog> {
         ),
         ElevatedButton(
           onPressed: () {
-            print(
-                'Username: $username, Passcode: $passcode, User Type: $userType');
-            Navigator.of(context).pop();
+            if (passcodeController.text.length < 6) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('Passcode must be at least 6 characters long'),
+                  duration: Duration(seconds: 2),
+                ),
+              );
+            } else {
+              createUser(
+                      username, passcodeController.text, userType, accessCount)
+                  .then((notification) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(notification),
+                    duration: Duration(seconds: 2),
+                  ),
+                );
+                
+                Navigator.of(context).pop();
+              });
+            }
           },
           child: Text('Add'),
-        ),
+        )
       ],
     );
   }
